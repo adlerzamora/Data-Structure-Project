@@ -14,7 +14,7 @@ public class DB {
 	ArrayList<EEntry> expenses;
 	Hashtable<Integer, ArrayList<EEntry>> expensesHT;
 	Hashtable<String, Hashtable<Integer, ArrayList<EEntry>>> expensesNHT;
-	TreeMap<Integer,String> expensesIT;
+	TreeMap<Integer, String> expensesIT;
 	
 	
 	
@@ -27,6 +27,16 @@ public class DB {
 		expensesNHT = new Hashtable<>();
 		expensesIT = new TreeMap<>();
 		
+	}
+	
+	public String getAllNames(){
+		String output = "---------------------------- \n| Name |       Adress      | \n---------------------------- \n";
+		for(NEntry e: namesHT.values()){
+			output += "|"+e.toString()+"|\n";
+		}
+		output+="|\n---------------------------- \n";
+		return output;
+
 	}
 	
 	public void createNameEntry(String name, String address){
@@ -77,6 +87,16 @@ public class DB {
 		//payments.add(x);
 		paymentsNHT.get(name).add(x);
 		paymentsIHT.put(invoice, x);
+	}
+	
+	public String getAllPayments(){
+		String output = "---------------------------- \n| Name | Invoice | Payment |\n---------------------------- \n";
+		for(PEntry e: paymentsIHT.values()){
+			output += "|"+e.toString()+"|\n";
+		}
+		output+="|\n---------------------------- \n";
+		return output;
+
 	}
 	
 	public void deletePaymentsEntry(Integer invoice){
@@ -152,7 +172,7 @@ public class DB {
 		expenses.add(x);
 		expensesHT.get(invoice).add(x);
 		expensesNHT.get(name).get(invoice).add(x);
-		ExpensesIT.a
+		expensesIT.put(invoice, name);
 	}
 	
 	/*public void deleteExpensesEntry(Integer invoice, String item){
@@ -301,6 +321,11 @@ public class DB {
 		test.createExpensesEntry(1008, "Uber", 350);
 		test.createExpensesEntry(1009, "Beer", 370);
 		test.createExpensesEntry(1010, "Food", 390);
+		
+		System.out.println(test.selectName("Ana"));
+		System.out.println(test.getAllNames());
+		System.out.println(test.getAllPayments());
+
 
 		ArrayList<PEntry> b = test.selectFromPaymentsByN("Ana");
 		
