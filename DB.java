@@ -127,6 +127,23 @@ public class DB {
 		expensesNHT.get(name).get(invoice).add(x);
 	}
 	
+	/*public void deleteExpensesEntry(Integer invoice, String item){
+		if(!expensesInvHT.containsKey(invoice) || !expensesInvHT.get(invoice).contains(item)){
+			throw new IllegalArgumentException();
+		} 
+		
+		expenses.remove(expensesInvHT.get(invoice).get(item));
+		expensesNHT.remove(invoice);
+		expensesInvHT.get(invoice).remove(item);
+	}
+	
+	public EEntry selectFromExpensesByPK(Integer invoice, String item){
+		if(!expensesInvHT.containsKey(invoice) || !expensesInvHT.get(invoice).contains(item)){
+			throw new IllegalArgumentException();
+		} 
+		
+		 return expensesInvHT.get(invoice).get(item);
+	}*/
 	
 	public Hashtable<Integer, ArrayList<EEntry>> selectFromExpensesByN(String name){
 		if(!expensesNHT.containsKey(name)){
@@ -152,6 +169,10 @@ public class DB {
 			name = n;
 			address = a;
 		}
+		
+		public String toString(){
+			return name + " - " + address;
+		}
 	}
 	
 	public class PEntry{
@@ -165,6 +186,10 @@ public class DB {
 			invoice = i;
 			payment = p;
 		}
+		
+		public String toString(){
+			return name + " - " + invoice + " - " + payment;
+		}
 	}
 	
 	public class EEntry{
@@ -177,6 +202,10 @@ public class DB {
 			invoice = i;
 			item = n;
 			expense = e; 
+		}
+		
+		public String toString(){
+			return invoice + " - " + item + " - " + expense;
 		}
 	}
 
@@ -223,10 +252,12 @@ public class DB {
 
 		ArrayList<PEntry> b = test.selectFromPaymentsByN("Ana");
 		
-	
+		for(int i = 0; i<2; i++){
+			System.out.println(b.get(i).toString());
+		}
 		
 		
-		System.out.println(test.selectFromNameByPK("Ana"));
+		//System.out.println(test.selectFromNameByPK("Ana"));
 
 		
 
