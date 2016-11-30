@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.TreeMap;
 
 public class DB {
 	
@@ -12,6 +14,7 @@ public class DB {
 	ArrayList<EEntry> expenses;
 	Hashtable<Integer, ArrayList<EEntry>> expensesHT;
 	Hashtable<String, Hashtable<Integer, ArrayList<EEntry>>> expensesNHT;
+	TreeMap<Integer,String> expensesIT;
 	
 	
 	
@@ -22,6 +25,7 @@ public class DB {
 		paymentsIHT = new Hashtable<>();
 		expensesHT = new Hashtable<>();
 		expensesNHT = new Hashtable<>();
+		expensesIT = new TreeMap<>();
 		
 	}
 	
@@ -53,6 +57,10 @@ public class DB {
 			return null;
 		} 
 		 return namesHT.get(name);
+	}
+	
+	public String selectName(String name){
+		return "---------------------------- \n| Name |       Adress      | \n---------------------------- \n| "+selectFromNameByPK(name).toString()+"|\n---------------------------- \n";
 	}
 	
 	public void createPaymentsEntry(String name, Integer invoice, int payment){
@@ -100,6 +108,25 @@ public class DB {
 		} 
 		 return paymentsNHT.get(name);
 	}
+	public String selectPaymentByInvoice(Integer invoice){
+		return "---------------------------- \n| Name | Invoice | Payment |\n---------------------------- \n|"+selectFromPaymentsByPK(invoice).toString()+"|\n---------------------------- \n";
+	}
+	
+	public String selectPaymentsByName(String name){
+		String output = "---------------------------- \n| Name | Invoice | Payment |\n---------------------------- \n";
+		ArrayList<PEntry> x = selectFromPaymentsByN(name);
+		
+		Iterator it = x.iterator();
+		
+		while(it.hasNext()){
+			output += "| "+it.next().toString()+" |\n";
+		}
+		
+		output += "---------------------------- \n";
+
+		
+		return output;
+	}
 	
 	public void createExpensesEntry(Integer invoice, String item, Integer expense){
 		
@@ -125,6 +152,7 @@ public class DB {
 		expenses.add(x);
 		expensesHT.get(invoice).add(x);
 		expensesNHT.get(name).get(invoice).add(x);
+		ExpensesIT.a
 	}
 	
 	/*public void deleteExpensesEntry(Integer invoice, String item){
@@ -153,6 +181,30 @@ public class DB {
 		return expensesNHT.get(name);
 	}
 	
+	public String selectExpensesByInvoice(Integer invoice){
+		String output = "---------------------------- \n| Invoice | item | Expense |\n---------------------------- \n";
+		
+		
+		output += "---------------------------- \n";
+		return output;
+	}
+	
+	public String selectExpensesByName(String name){
+		String output = "---------------------------- \n| Invoice | item | Expense |\n---------------------------- \n";
+		ArrayList<PEntry> x = selectFromPaymentsByN(name);
+		
+		Iterator it = x.iterator();
+		
+		while(it.hasNext()){
+			output += "| "+it.next().toString()+" |\n";
+		}
+		
+		output += "---------------------------- \n";
+
+		
+		return output;
+	}
+	
 	private int afterExpenses(String name, int invoice){
 		if(!namesHT.contains(name)){
 			throw new IllegalArgumentException();
@@ -171,7 +223,7 @@ public class DB {
 		}
 		
 		public String toString(){
-			return name + " - " + address;
+			return name + " | " + address;
 		}
 	}
 	
@@ -188,7 +240,7 @@ public class DB {
 		}
 		
 		public String toString(){
-			return name + " - " + invoice + " - " + payment;
+			return name + " | " + invoice + " | " + payment;
 		}
 	}
 	
@@ -205,7 +257,7 @@ public class DB {
 		}
 		
 		public String toString(){
-			return invoice + " - " + item + " - " + expense;
+			return invoice + " | " + item + " | " + expense;
 		}
 	}
 
@@ -255,7 +307,9 @@ public class DB {
 		for(int i = 0; i<2; i++){
 			System.out.println(b.get(i).toString());
 		}
+		System.out.println(test.selectPaymentsByName("Elsa"));
 		
+		System.out.println(test.selectName("Ana"));
 		
 		//System.out.println(test.selectFromNameByPK("Ana"));
 
