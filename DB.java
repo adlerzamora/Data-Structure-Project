@@ -127,23 +127,6 @@ public class DB {
 		expensesNHT.get(name).get(invoice).add(x);
 	}
 	
-	/*public void deleteExpensesEntry(Integer invoice, String item){
-		if(!expensesInvHT.containsKey(invoice) || !expensesInvHT.get(invoice).contains(item)){
-			throw new IllegalArgumentException();
-		} 
-		
-		expenses.remove(expensesInvHT.get(invoice).get(item));
-		expensesNHT.remove(invoice);
-		expensesInvHT.get(invoice).remove(item);
-	}
-	
-	public EEntry selectFromExpensesByPK(Integer invoice, String item){
-		if(!expensesInvHT.containsKey(invoice) || !expensesInvHT.get(invoice).contains(item)){
-			throw new IllegalArgumentException();
-		} 
-		
-		 return expensesInvHT.get(invoice).get(item);
-	}*/
 	
 	public Hashtable<Integer, ArrayList<EEntry>> selectFromExpensesByN(String name){
 		if(!expensesNHT.containsKey(name)){
