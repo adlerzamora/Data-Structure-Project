@@ -7,14 +7,14 @@ public class DB {
 	
 	Hashtable<String, NEntry> namesHT; 
 	
-	//ArrayList<PEntry> payments;
 	Hashtable<String, ArrayList<PEntry>> paymentsNHT;
 	Hashtable<Integer, PEntry> paymentsIHT;
 	
 	Hashtable<Integer, ArrayList<EEntry>> expensesHT;
 	Hashtable<String, Hashtable<Integer, ArrayList<EEntry>>> expensesNHT;
-	TreeMap<Integer, Integer> invoiceAfterExpenses;
 	
+	TreeMap<Integer, Integer> invoiceAfterExpenses;
+	Graph users;
 	
 	
 	public DB(){
@@ -24,11 +24,11 @@ public class DB {
 		expensesHT = new Hashtable<>();
 		expensesNHT = new Hashtable<>();
 		invoiceAfterExpenses = new TreeMap<>();
-		
+		users = new Graph(this);
 	}
 	
 	public String getAllNames(){
-		String output = "---------------------------- \n| Name |       Adress      | \n---------------------------- \n";
+		String output = "---------------------------- \n| Name |       Address      | \n---------------------------- \n";
 		for(NEntry e: namesHT.values()){
 			output += "|"+e.toString()+"|\n";
 		}
@@ -80,7 +80,7 @@ public class DB {
 	}
 	
 	public String selectName(String name){
-		return "---------------------------- \n| Name |       Adress      | \n---------------------------- \n| "+selectFromNameByPK(name).toString()+"|\n---------------------------- \n";
+		return "---------------------------- \n| Name |       Address      | \n---------------------------- \n| "+selectFromNameByPK(name).toString()+"|\n---------------------------- \n";
 	}
 	
 	public void createPaymentsEntry(String name, Integer invoice, int payment){
@@ -256,18 +256,8 @@ public class DB {
 		output += "---------------------------- \n";
 		return output;
 	}
-	
-	private Integer afterExpenses(int invoice){
-		if(!paymentsIHT.containsKey(invoice)){
-			return null;
-		} 
-		
-		Integer payment = selectFromPaymentsByPK(invoice).payment;
+	private Integer totalExpenses(int invoice){
 		Integer expenses = 0;
-		
-		if(!expensesHT.containsKey(invoice)){
-			return payment;
-		}
 		
 		ArrayList<EEntry> x = selectFromExpensesByI(invoice);
 		
@@ -277,9 +267,21 @@ public class DB {
 			expenses += it.next().expense;
 		}
 		
-		return payment-expenses;
+		return expenses;
 	}
 	
+	private Integer afterExpenses(int invoice){
+		if(!paymentsIHT.containsKey(invoice)){
+			return null;
+		} 		
+		
+		if(!expensesHT.containsKey(invoice)){
+			return selectFromPaymentsByPK(invoice).payment;
+		}
+		
+		return selectFromPaymentsByPK(invoice).payment - totalExpenses(invoice);
+	}
+
 	public String getEarningAfterExpenses(Integer invoice){
 		
 		if(!paymentsIHT.containsKey(invoice)){
@@ -290,6 +292,33 @@ public class DB {
 
 		output += "| "+paymentsIHT.get(invoice).name+" | "+invoice+" | $"+invoiceAfterExpenses.get(invoice)+" |\n----------------------\n";
 		return output;
+	}
+	
+	public int getHowSimilar(String name1, String name2){
+		int output = 0;
+		
+		ArrayList<PEntry> x = paymentsNHT.get(name1);
+		ArrayList<PEntry> y = paymentsNHT.get(name2);		
+		
+		Iterator<PEntry> itx = x.iterator();
+		Iterator<PEntry> ity = y.iterator();
+		
+		while(itx.hasNext()){
+			output += totalExpenses(itx.next().invoice);
+		}
+		
+		while(ity.hasNext()){
+			output -= totalExpenses(ity.next().invoice);
+		}
+		
+		return Math.abs(output);
+	}
+	
+	public int howSimilar(String name1, String name2){
+		if(paymentsNHT.containsKey(name1) && paymentsNHT.containsKey(name2)){
+			return users.getWeight(name1, name2);
+		}
+		throw new IllegalArgumentException();
 	}
 	
 	public class NEntry{
@@ -398,6 +427,10 @@ public class DB {
 		//test.deletePaymentsEntry(1001);
 		
 		System.out.println(test.getEarningAfterExpenses(1001));
+		
+		System.out.println(test.getHowSimilar("Ana", "Elsa"));
+		System.out.println(test.howSimilar("Ana", "Elsa"));
+
 
 	}
 	
