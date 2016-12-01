@@ -11,7 +11,6 @@ public class DB {
 	Hashtable<String, ArrayList<PEntry>> paymentsNHT;
 	Hashtable<Integer, PEntry> paymentsIHT;
 	
-	ArrayList<EEntry> expenses;
 	Hashtable<Integer, ArrayList<EEntry>> expensesHT;
 	Hashtable<String, Hashtable<Integer, ArrayList<EEntry>>> expensesNHT;
 	TreeMap<Integer, Integer> invoiceAfterExpenses;
@@ -19,7 +18,6 @@ public class DB {
 	
 	
 	public DB(){
-		expenses = new ArrayList<>();
 		namesHT = new Hashtable<>(); 
 		paymentsNHT = new Hashtable<>();
 		paymentsIHT = new Hashtable<>();
@@ -57,11 +55,23 @@ public class DB {
 		if(!paymentsNHT.contains(name)){
 			namesHT.remove(name);
 		} else {
-			System.out.println(":C");
+			deleteAllPayments(name);
+			namesHT.remove(name);
 		}
 		
 	}
 	
+	private void deleteAllPayments(String name) {
+		ArrayList<PEntry> x = selectFromPaymentsByN(name);
+		
+		Iterator<PEntry> it = x.iterator();
+		
+		while(it.hasNext()){
+			deletePaymentsEntry(it.next().invoice);
+		}
+		
+	}
+
 	public NEntry selectFromNameByPK(String name){
 		if(!namesHT.containsKey(name)){
 			return null;
@@ -109,12 +119,27 @@ public class DB {
 			//payments.remove(paymentsIHT.get(invoice));
 			paymentsNHT.remove(paymentsIHT.get(invoice).name);
 			paymentsIHT.remove(invoice);
+			invoiceAfterExpenses.remove(invoice);
 		} else {
 			System.out.println(":C");
+			paymentsNHT.remove(paymentsIHT.get(invoice).name);
+			paymentsIHT.remove(invoice);
+			deleteExpenses(invoice);
+			invoiceAfterExpenses.remove(invoice);
 		}
 		
 	}
 	
+	private void deleteExpenses(Integer invoice) {
+		expensesHT.remove(invoice);
+		String name = paymentsIHT.get(invoice).name;
+		expensesNHT.get(name).remove(invoice);
+		if(expensesNHT.get(name).isEmpty()){
+			expensesNHT.remove(name);
+		}
+
+	}
+
 	public PEntry selectFromPaymentsByPK(Integer invoice){
 		if(!paymentsIHT.containsKey(invoice)){
 			return null;
@@ -136,7 +161,7 @@ public class DB {
 		String output = "---------------------------- \n| Name | Invoice | Payment |\n---------------------------- \n";
 		ArrayList<PEntry> x = selectFromPaymentsByN(name);
 		
-		Iterator it = x.iterator();
+		Iterator<PEntry> it = x.iterator();
 		
 		while(it.hasNext()){
 			output += "| "+it.next().toString()+" |\n";
@@ -169,10 +194,9 @@ public class DB {
 		}
 		
 		EEntry x = new EEntry(invoice, item, expense);
-		expenses.add(x);
 		expensesHT.get(invoice).add(x);
 		expensesNHT.get(name).get(invoice).add(x);
-		expensesIT.put(invoice, name);
+		invoiceAfterExpenses.put(invoice, afterExpenses(invoice));
 	}
 	
 	public String getAllExpenses(){
@@ -237,8 +261,13 @@ public class DB {
 		if(!paymentsIHT.containsKey(invoice)){
 			return null;
 		} 
+		
 		Integer payment = selectFromPaymentsByPK(invoice).payment;
 		Integer expenses = 0;
+		
+		if(!expensesHT.containsKey(invoice)){
+			return payment;
+		}
 		
 		ArrayList<EEntry> x = selectFromExpensesByI(invoice);
 		
@@ -249,6 +278,18 @@ public class DB {
 		}
 		
 		return payment-expenses;
+	}
+	
+	public String getEarningAfterExpenses(Integer invoice){
+		
+		if(!paymentsIHT.containsKey(invoice)){
+			throw new IllegalArgumentException();
+		}
+		
+		String output = "----------------------\n| Name | Invoice | Earning |\n----------------------\n";
+
+		output += "| "+paymentsIHT.get(invoice).name+" | "+invoice+" | $"+invoiceAfterExpenses.get(invoice)+" |\n----------------------\n";
+		return output;
 	}
 	
 	public class NEntry{
@@ -354,6 +395,9 @@ public class DB {
 		System.out.println(test.getAllExpenses());
 		System.out.println(test.selectExpensesByInvoice(1001));
 		System.out.println(test.selectExpensesByName("Ana"));
+		//test.deletePaymentsEntry(1001);
+		
+		System.out.println(test.getEarningAfterExpenses(1001));
 
 	}
 	
